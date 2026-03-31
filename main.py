@@ -14,36 +14,46 @@ def home():
     return {"message": "GitHub Connector Running 🚀"}
 
 
-# 🔹 Fetch Repositories
 @app.post("/repos")
 def fetch_repos(request: RepoRequest):
     try:
-        repos = get_repositories(request.username)
-        return repos
+        return get_repositories(request.username)
+
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-# 🔹 Create Issue
 @app.post("/create-issue")
 def create_issue_api(request: IssueRequest):
     try:
-        issue = create_issue(
+        return create_issue(
             request.owner,
             request.repo,
             request.title,
             request.body
         )
-        return {"status": "success", "data": issue}
+
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-# 🔹 List Issues
 @app.post("/list-issues")
 def list_issues_api(request: ListIssuesRequest):
     try:
         issues = list_issues(request.owner, request.repo)
-        return {"no_of_issues":len(issues), "data": issues}
+        return {
+            "count": len(issues),
+            "issues": issues
+        }
+
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
